@@ -8,6 +8,7 @@ pylint = "*"
 autopep8 = "*"
 
 [dev-packages]
+black = "*"
 
 [requires]
 python_version = "*"

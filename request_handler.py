@@ -1,16 +1,16 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
-
+from views import get_all_products
 
 
 class HandleRequests(BaseHTTPRequestHandler):
     """Handles the requests to this server"""
 
-    def parse_url(self, path):
+    def parse_url(self, path):  # NOTE: This is a method (it is written in a class.)
         """Parse the url into the resource and id"""
         parsed_url = urlparse(path)
-        path_params = parsed_url.path.split('/')
+        path_params = parsed_url.path.split("/")
         resource = path_params[1]
 
         if parsed_url.query:
@@ -32,19 +32,18 @@ class HandleRequests(BaseHTTPRequestHandler):
             status (number): the status code to return to the front end
         """
         self.send_response(status)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header("Content-type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
     def do_OPTIONS(self):
-        """Sets the OPTIONS headers
-        """
+        """Sets the OPTIONS headers"""
         self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods',
-                         'GET, POST, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers',
-                         'X-Requested-With, Content-Type, Accept')
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+        self.send_header(
+            "Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept"
+        )
         self.end_headers()
 
     def do_GET(self):
@@ -60,10 +59,9 @@ class HandleRequests(BaseHTTPRequestHandler):
         """Handle DELETE Requests"""
 
 
-def main():
-    """Starts the server on port 8088 using the HandleRequests class
-    """
-    host = ''
+def main():  # NOTE: This is a function (Outside of class)
+    """Starts the server on port 8088 using the HandleRequests class"""
+    host = ""
     port = 8088
     HTTPServer((host, port), HandleRequests).serve_forever()
 
