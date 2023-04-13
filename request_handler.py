@@ -2,6 +2,8 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 from views import get_all_products
+from views import get_all_employees
+from views import get_all_orders
 
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -48,6 +50,29 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handle Get requests to the server"""
+
+        # Need to put a default response
+        response = None
+
+        # Need the parse URL to grab the returned tuple
+        (resource, id) = self.parse_url(self.path)  # connects to defined lists
+
+        # get_all_products initialized here
+
+        if resource == "products" or "orders":
+            response = get_all_products()
+            # get_single_product()
+        elif resource == "orders":
+            response = get_all_orders()
+        elif resource == "employees":
+            response = get_all_employees()
+        else:
+            response = None
+        if response is not None:
+            self._set_headers(200)
+        else:
+            self._set_headers(404)
+        self.wfile.write(json.dumps(response).encode())
 
     def do_POST(self):
         """Make a post request to the server"""
