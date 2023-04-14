@@ -1,9 +1,16 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
-from views import get_all_products
-from views import get_all_employees
-from views import get_all_orders
+from views import (
+    get_all_products,
+    get_single_product,
+    create_product,
+    create_productALL,
+    get_all_employees,
+    get_single_employee,
+    get_all_orders,
+    get_single_order,
+)
 
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -59,13 +66,21 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         # get_all_products initialized here
 
-        if resource == "products" or "orders":
-            response = get_all_products()
-            # get_single_product()
+        if resource == "products":
+            if id is not None:
+                response = get_single_product(id)
+            else:
+                response = get_all_products()
         elif resource == "orders":
-            response = get_all_orders()
+            if id is not None:
+                response = get_single_order(id)
+            else:
+                response = get_all_orders()
         elif resource == "employees":
-            response = get_all_employees()
+            if id is not None:
+                response = get_single_employee(id)
+            else:
+                response = get_all_employees()
         else:
             response = None
         if response is not None:
@@ -76,6 +91,33 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_POST(self):
         """Make a post request to the server"""
+        # Frankie products create
+        self._set_headers(201)
+        content_len = int(self.headers.get("content-length", 0))
+        post_body = self.rfile.read(content_len)
+
+        post_body = json.loads(post_body)
+
+        (resource, id) = self.parse_url(self.path)
+        # resource, id = self.parse_url(self.path)
+
+        new_dictionary = None
+
+        if resource == "products":
+            new_dictionary = create_product(post_body)
+
+        if resource == "all-products":
+            new_dictionary = create_productALL(post_body)
+        # elif resource == "employees":
+        #     new_dictionary = create_employee(post_body)
+        # elif resource == "orders":
+        #     new_dictionary = create_order(post_body)
+        # else:
+        #     new_dictionary = {
+        #         "message": f'{"Post could not be completed."}'
+        #         }
+
+        self.wfile.write(json.dumps(new_dictionary).encode())
 
     def do_PUT(self):
         """Handles PUT requests to the server"""

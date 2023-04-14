@@ -11,3 +11,15 @@ EMPLOYEES = [
 def get_all_employees():
     """This function will return all employees"""
     return EMPLOYEES
+
+
+def get_single_employee(id):
+    """This function will get a single employee by passing ID"""
+    requested_employee = None
+
+    for employee in EMPLOYEES:
+        #need to sort thru employees with "if"
+        if employee["id"] == id:
+            requested_employee = employee
+
+    return requested_employee
