@@ -1,3 +1,7 @@
+from models import Employee
+import sqlite3
+import json
+
 EMPLOYEES = [
     {
         "id": 1,
@@ -7,12 +11,40 @@ EMPLOYEES = [
     }
 ]
 
+
 # going to write new get_all_employees
-
-
 def get_all_employees():
-    """This function will return all employees"""
-    return EMPLOYEES
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute(
+            """
+        SELECT 
+            e.id,
+            e.name,
+            e.hourly_rate,
+            e.email
+        FROM employee e
+        """
+        )
+
+        employees = []
+
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            employee = Employee(
+                row["id"], row["name"], row["hourly_rate"], row["email"]
+            )
+            employees.append(employee.__dict__)
+
+    return employees
+
+
+# def get_all_employees():
+#     """This function will return all employees"""
+#     return EMPLOYEES
 
 
 def get_single_employee(id):
