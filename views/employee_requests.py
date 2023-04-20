@@ -7,6 +7,8 @@ EMPLOYEES = [
     }
 ]
 
+# going to write new get_all_employees
+
 
 def get_all_employees():
     """This function will return all employees"""
@@ -18,7 +20,7 @@ def get_single_employee(id):
     requested_employee = None
 
     for employee in EMPLOYEES:
-        #need to sort thru employees with "if"
+        # need to sort thru employees with "if"
         if employee["id"] == id:
             requested_employee = employee
 
