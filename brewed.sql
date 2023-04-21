@@ -8,7 +8,7 @@ CREATE TABLE `Employee` (
 CREATE TABLE `Product` (
     `id`    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     `name`  TEXT NOT NULL,
-    `price` FLOAT NOT NULL
+    `price` REAL NOT NULL
 );
 
 CREATE TABLE `Order` (
@@ -20,3 +20,17 @@ CREATE TABLE `Order` (
     FOREIGN KEY(`employee_id`) REFERENCES `Employee`(`id`),
     FOREIGN KEY(`product_id`) REFERENCES `Product`(`id`)
 );
+
+INSERT INTO `Employee` VALUES (null, 'Dale Gribble', 'governmentBad@texas.gov', 15);
+INSERT INTO `Employee` VALUES (null, 'Sharon', 'governmentBad2@texas.gov', 16);
+
+INSERT INTO `Product` VALUES (null, 'Squeek Toy', 20);
+INSERT INTO `Product` VALUES (null, 'Holy Roller', 30);
+
+INSERT INTO `Order` VALUES (null, 1, 2, 19991231);
+INSERT INTO `Order` VALUES (null, 2, 1, 20000101);
+
+SELECT o.id order_id, p.*, e.*
+FROM `Order` o
+JOIN Product p ON o.product_id = p.id
+JOIN Employee e ON o.employee_id = e.id
