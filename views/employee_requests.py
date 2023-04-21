@@ -42,6 +42,8 @@ def get_all_employees():
     return employees
 
 
+# Working hard or hardly working?
+
 # def get_all_employees():
 #     """This function will return all employees"""
 #     return EMPLOYEES
