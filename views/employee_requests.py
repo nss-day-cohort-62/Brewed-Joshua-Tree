@@ -42,6 +42,7 @@ def get_all_employees():
     return employees
 
 
+# Working hard or hardly working?
 # writing for demo
 
 # showing pull request deets
