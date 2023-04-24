@@ -1,6 +1,6 @@
 import sqlite3
 from models import Product
-import json
+
 
 PRODUCTS = [
     {"id": 1, "name": "Squeek Toy", "price": 20.00},
@@ -38,49 +38,55 @@ def get_all_products():
 
 
 def get_single_product(id):
-    """Return single instance of product"""
-    requested_product = None
+    """Return single instance of product from SQL data"""
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row 
+        db_cursor = conn.cursor()
 
-    for product in PRODUCTS:
-        if product["id"] == id:
-            requested_product = product
+        db_cursor.execute("""
+        SELECT
+            p.id,
+            p.name,
+            p.price
+        FROM product p
+        WHERE p.id = ?
+        """, ( id, ))
 
-    return requested_product
+        data = db_cursor.fetchone()
+        product = Product(data['id'], data['name'], data['price'])
+
+    return product.__dict__
 
 
-def create_product(product):
+def create_product(new_product):
     """create product"""
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
-    # Get the id value of the last product in the list
-    max_id = PRODUCTS[-1]["id"]
+        db_cursor.execute("""
+        INSERT INTO Product
+            (name, price)
+        VALUES
+            (?, ?);
+        """, (new_product['name'], new_product['price'], ))
 
-    # Adds 1 to whatever that number is
-    new_id = max_id + 1
+        id = db_cursor.lastrowid
 
-    # Add an `id` property to product dictionary
-    product["id"] = new_id
+        new_product['id'] = id
 
-    # Adds the product dictionary to the list
-    PRODUCTS.append(product)
+    return new_product
+    # # Get the id value of the last product in the list
+    # max_id = PRODUCTS[-1]["id"]
 
-    # Returns the dictionary with `id` property added
-    return product
+    # # Adds 1 to whatever that number is
+    # new_id = max_id + 1
 
+    # # Add an `id` property to product dictionary
+    # product["id"] = new_id
 
-def create_productALL(product):
-    """create product"""
+    # # Adds the product dictionary to the list
+    # PRODUCTS.append(product)
 
-    # Get the id value of the last product in the list
-    max_id = PRODUCTS[-1]["id"]
+    # # Returns the dictionary with `id` property added
+    # return product
 
-    # Adds 1 to whatever that number is
-    new_id = max_id + 1
-
-    # Add an `id` property to product dictionary
-    product["id"] = new_id
-
-    # Adds the product dictionary to the list
-    PRODUCTS.append(product)
-
-    # Returns the dictionary with `id` property added
-    return PRODUCTS

@@ -54,11 +54,22 @@ def get_all_employees():
 
 def get_single_employee(id):
     """This function will get a single employee by passing ID"""
-    requested_employee = None
+    
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
 
-    for employee in EMPLOYEES:
-        # need to sort thru employees with "if"
-        if employee["id"] == id:
-            requested_employee = employee
+        db_cursor.execute("""
+        SELECT
+            e.id,
+            e.name,
+            e.hourly_rate,
+            e.email
+        FROM employee e
+        WHERE e.id = ?
+        """, ( id, ))
 
-    return requested_employee
+        data = db_cursor.fetchone()
+        employee = Employee(data['id'], data['name'], data['hourly_rate'], data['email'])
+
+        return employee.__dict__

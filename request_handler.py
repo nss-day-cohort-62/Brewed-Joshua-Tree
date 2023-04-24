@@ -5,7 +5,6 @@ from views import (
     get_all_products,
     get_single_product,
     create_product,
-    create_productALL,
     get_all_employees,
     get_single_employee,
     get_all_orders,
@@ -49,7 +48,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         """Sets the OPTIONS headers"""
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+        self.send_header("Access-Control-Allow-Methods",
+                         "GET, POST, PUT, DELETE")
         self.send_header(
             "Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept"
         )
@@ -106,8 +106,6 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "products":
             new_dictionary = create_product(post_body)
 
-        if resource == "all-products":
-            new_dictionary = create_productALL(post_body)
         # elif resource == "employees":
         #     new_dictionary = create_employee(post_body)
         # elif resource == "orders":
