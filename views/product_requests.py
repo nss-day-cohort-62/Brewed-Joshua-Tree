@@ -40,7 +40,7 @@ def get_all_products():
 def get_single_product(id):
     """Return single instance of product from SQL data"""
     with sqlite3.connect("./brewed.sqlite3") as conn:
-        conn.row_factory = sqlite3.Row 
+        conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
         db_cursor.execute("""
@@ -50,7 +50,7 @@ def get_single_product(id):
             p.price
         FROM product p
         WHERE p.id = ?
-        """, ( id, ))
+        """, (id, ))
 
         data = db_cursor.fetchone()
         product = Product(data['id'], data['name'], data['price'])
@@ -75,6 +75,29 @@ def create_product(new_product):
         new_product['id'] = id
 
     return new_product
+
+
+def update_product(id, new_product):
+    """Update product in SQL table"""
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        UPDATE Product
+            SET
+                
+                name = ?,
+                price = ?
+        WHERE id = ?
+        """, (new_product['name'], new_product['price'], new_product['id']))
+
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        return False
+    else:
+        return True
+
     # # Get the id value of the last product in the list
     # max_id = PRODUCTS[-1]["id"]
 
@@ -89,4 +112,3 @@ def create_product(new_product):
 
     # # Returns the dictionary with `id` property added
     # return product
-

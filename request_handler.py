@@ -1,4 +1,8 @@
 import json
+from views import create_order, create_product, create_employee, update_employee
+from views import get_all_employees, get_all_orders, get_all_products
+from views import get_single_employee, get_single_order, get_single_product
+from views import update_product
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 from views import (
@@ -104,10 +108,34 @@ class HandleRequests(BaseHTTPRequestHandler):
         new_dictionary = None
 
         if resource == "products":
-            new_dictionary = create_product(post_body)
+            if "name" in post_body and "price" in post_body:
+                self._set_headers(201)
+                new_dictionary = create_product(post_body)
+            else:
+                self._set_headers(400)
+                new_order = {
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"price is required" if "price" not in post_body else ""}'
+                }
 
-        # elif resource == "employees":
-        #     new_dictionary = create_employee(post_body)
+        elif resource == "employees":
+            if "name" in post_body and "email" in post_body and "hourly_rate" in post_body:
+                self._set_headers(201)
+                new_dictionary = create_employee(post_body)
+            else:
+                self._set_headers(400)
+                new_order = {
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"email is required" if "email" not in post_body else ""} {"hourly_rate is required" if "hourly_rate" not in post_body else ""}'
+                }
+        
+        elif resource == "orders":
+            if "employee_id" in post_body and "product_id" in post_body and "timestamp" in post_body:
+                self._set_headers(201)
+                new_dictionary = create_order(post_body)
+            else:
+                self._set_headers(400)
+                new_order = {
+                    "message": f'{"employee_id is required" if "employee_id" not in post_body else ""}  {"product_id is required" if "product_id" not in post_body else ""} {"timestamp is required" if "timestamp" not in post_body else ""}'
+                }
         # elif resource == "orders":
         #     new_dictionary = create_order(post_body)
         # else:
@@ -119,6 +147,25 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         """Handles PUT requests to the server"""
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        (resource, id) = self.parse_url(self.path)
+
+        success = False
+
+        if resource == "employees":
+            success = update_employee(id, post_body)
+        if resource == "products":
+            success = update_product(id, post_body)
+
+        if success:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
+        
+        self.wfile.write("".encode())
 
     def do_DELETE(self):
         """Handle DELETE Requests"""

@@ -54,7 +54,7 @@ def get_all_employees():
 
 def get_single_employee(id):
     """This function will get a single employee by passing ID"""
-    
+
     with sqlite3.connect("./brewed.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
@@ -67,9 +67,56 @@ def get_single_employee(id):
             e.email
         FROM employee e
         WHERE e.id = ?
-        """, ( id, ))
+        """, (id, ))
 
         data = db_cursor.fetchone()
-        employee = Employee(data['id'], data['name'], data['hourly_rate'], data['email'])
+        employee = Employee(data['id'], data['name'],
+                            data['hourly_rate'], data['email'])
 
         return employee.__dict__
+
+
+def create_employee(new_employee):
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        INSERT INTO Employee
+            ( name, email, hourly_rate )
+        VALUES
+            ( ?, ?, ?);
+        """, (new_employee['name'], new_employee['email'],
+              new_employee['hourly_rate']))
+
+        # The `lastrowid` property on the cursor will return
+        # the primary key of the last thing that got added to
+        # the database.
+        id = db_cursor.lastrowid
+
+        # Add the `id` property to the order dictionary that
+        # was sent by the client so that the client sees the
+        # primary key in the response.
+        new_employee['id'] = id
+
+    return new_employee
+
+
+def update_employee(id, new_employee):
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        UPDATE EMPLOYEE
+            SET
+                name = ?,
+                email = ?,
+                hourly_rate = ?
+        WHERE id = ?
+        """, (new_employee['name'], new_employee['email'], new_employee['hourly_rate'], id))
+
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        return False
+    else:
+        return True
