@@ -2,7 +2,7 @@ import json
 from views import create_order, create_product, create_employee, update_employee
 from views import get_all_employees, get_all_orders, get_all_products
 from views import get_single_employee, get_single_order, get_single_product
-from views import update_product
+from views import update_product, update_order
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 from views import (
@@ -13,6 +13,10 @@ from views import (
     get_single_employee,
     get_all_orders,
     get_single_order,
+    delete_employee,
+    delete_order,
+    delete_product
+    
 )
 
 
@@ -145,6 +149,28 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         self.wfile.write(json.dumps(new_dictionary).encode())
 
+    def do_DELETE(self):
+        """"handles the delete request to the server"""
+        self._set_headers(204)
+
+        (resource, id) = self.parse_url(self.path)
+
+        if resource == "products":
+            delete_product(id)
+        
+            self.wfile.write("".encode())
+        
+        if resource == "employees":
+            delete_employee(id)
+
+            self.wfile.write("".encode())
+        
+        if resource == "orders":
+            delete_order(id)
+
+            self.wfile.write("".encode())
+
+
     def do_PUT(self):
         """Handles PUT requests to the server"""
         content_len = int(self.headers.get('content-length', 0))
@@ -159,6 +185,8 @@ class HandleRequests(BaseHTTPRequestHandler):
             success = update_employee(id, post_body)
         if resource == "products":
             success = update_product(id, post_body)
+        if resource == "orders":
+            success = update_order(id, post_body)
 
         if success:
             self._set_headers(204)
@@ -167,8 +195,6 @@ class HandleRequests(BaseHTTPRequestHandler):
         
         self.wfile.write("".encode())
 
-    def do_DELETE(self):
-        """Handle DELETE Requests"""
 
 
 def main():  # NOTE: This is a function (Outside of class)

@@ -120,3 +120,12 @@ def update_employee(id, new_employee):
         return False
     else:
         return True
+
+def delete_employee(id):
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        DELETE FROM employee
+        WHERE id = ?
+        """, (id, ))

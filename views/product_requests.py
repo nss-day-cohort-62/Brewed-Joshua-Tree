@@ -112,3 +112,13 @@ def update_product(id, new_product):
 
     # # Returns the dictionary with `id` property added
     # return product
+
+def delete_product(id):
+    """This is a function for deleting an product"""
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        DELETE FROM product
+        WHERE id = ?
+        """, (id, ))

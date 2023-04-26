@@ -56,7 +56,7 @@ def get_single_order(id):
         requested_order = Order(data['id'], data['employee_Id'],
                                 data['product_Id'], data['timestamp'])
 
-        return requested_order
+        return requested_order.__dict__
 
 
 def create_order(new_order):
@@ -76,3 +76,36 @@ def create_order(new_order):
         new_order['id'] = id
 
     return new_order
+
+
+def update_order(id, new_order):
+    """Update orders into SQL DB"""
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        UPDATE `Order`
+            SET
+                employee_id = ?,
+                product_id = ?,
+                timestamp = ?
+        WHERE id = ?
+        """, (new_order['employee_id'], new_order['product_id'], new_order['timestamp'], id))
+
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        return False
+    else:
+        return True
+
+
+def delete_order(id):
+    """Deletes orders from SQL database"""
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        db_cursor = conn.cursor()
+        
+        db_cursor.execute("""
+        DELETE FROM 'Order'
+        WHERE id = ?
+        """, (id, ))
