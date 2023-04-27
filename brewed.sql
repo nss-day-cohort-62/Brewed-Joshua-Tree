@@ -34,3 +34,19 @@ SELECT o.id order_id, p.*, e.*
 FROM `Order` o
 JOIN Product p ON o.product_id = p.id
 JOIN Employee e ON o.employee_id = e.id
+
+SELECT 
+    o.id,
+    o.employee_id,
+    o.product_id,
+    e.name,
+    e.hourly_rate,
+    e.email,
+    p.name,
+    p.price,
+    o.timestamp
+FROM "order" o
+INNER JOIN Employee e
+    ON e.id = o.employee_id
+INNER JOIN Product p
+    ON p.id = o.product_id

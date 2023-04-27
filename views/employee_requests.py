@@ -121,6 +121,7 @@ def update_employee(id, new_employee):
     else:
         return True
 
+
 def delete_employee(id):
     with sqlite3.connect("./brewed.sqlite3") as conn:
         db_cursor = conn.cursor()
@@ -129,3 +130,31 @@ def delete_employee(id):
         DELETE FROM employee
         WHERE id = ?
         """, (id, ))
+
+
+def get_employees_by_name(name):
+    """This is a function that gets employees by name"""
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            e.id,
+            e.name,
+            e.hourly_rate,
+            e.email
+        FROM employee e
+        WHERE e.name = ?
+        """, (name, ))
+
+        employees = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            employee = Employee(row['id'], row['name'],
+                                row['hourly_rate'], row['email'])
+            employees.append(employee.__dict__)
+
+    return employees

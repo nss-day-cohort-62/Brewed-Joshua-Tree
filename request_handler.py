@@ -2,7 +2,7 @@ import json
 from views import create_order, create_product, create_employee, update_employee
 from views import get_all_employees, get_all_orders, get_all_products
 from views import get_single_employee, get_single_order, get_single_product
-from views import update_product, update_order
+from views import update_product, update_order, get_employees_by_name
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 from views import (
@@ -15,7 +15,8 @@ from views import (
     get_single_order,
     delete_employee,
     delete_order,
-    delete_product
+    delete_product,
+    get_products_by_name
     
 )
 
@@ -70,27 +71,37 @@ class HandleRequests(BaseHTTPRequestHandler):
         response = None
 
         # Need the parse URL to grab the returned tuple
-        (resource, id) = self.parse_url(self.path)  # connects to defined lists
+        parsed = self.parse_url(self.path)  # connects to defined lists
 
         # get_all_products initialized here
-
-        if resource == "products":
-            if id is not None:
-                response = get_single_product(id)
+        if '?' not in self.path:
+            ( resource, id ) = parsed
+            if resource == "products":
+                if id is not None:
+                    response = get_single_product(id)
+                else:
+                    response = get_all_products()
+            elif resource == "orders":
+                if id is not None:
+                    response = get_single_order(id)
+                else:
+                    response = get_all_orders()
+            elif resource == "employees":
+                if id is not None:
+                    response = get_single_employee(id)
+                else:
+                    response = get_all_employees()
             else:
-                response = get_all_products()
-        elif resource == "orders":
-            if id is not None:
-                response = get_single_order(id)
-            else:
-                response = get_all_orders()
-        elif resource == "employees":
-            if id is not None:
-                response = get_single_employee(id)
-            else:
-                response = get_all_employees()
+                response = None
         else:
-            response = None
+            (resource, query) = parsed
+
+            if query.get('name') and resource == "employees":
+                response = get_employees_by_name(query['name'][0])
+
+            elif query.get('name') and resource == 'products':
+                response = get_products_by_name(query['name'][0])  
+
         if response is not None:
             self._set_headers(200)
         else:

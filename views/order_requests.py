@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Order
+from models import Order, Employee, Product
 
 ORDERS = [{"id": 1, "employeeId": 1, "productId": 1, "timestamp": 13042023}]
 
@@ -11,16 +11,24 @@ def get_all_orders():
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
-        db_cursor.execute(
-            """
+        db_cursor.execute("""
         SELECT 
             o.id,
             o.employee_id,
             o.product_id,
+            e.name employee_name,
+            e.hourly_rate,
+            e.email,
+            p.name,
+            p.price,
             o.timestamp
         FROM "order" o
+        INNER JOIN Employee e
+            ON e.id = o.employee_id
+        INNER JOIN Product p
+            ON p.id = o.product_id
         """
-        )
+                          )
 
         orders = []
 
@@ -30,6 +38,18 @@ def get_all_orders():
             order = Order(
                 row["id"], row["employee_id"], row["product_id"], row["timestamp"]
             )
+
+            employee = Employee(
+                row["employee_id"], row["employee_name"], row["hourly_rate"], row["email"]
+            )
+
+            product = Product(
+                row["product_id"], row["name"], row["price"]
+            )
+
+            order.employee = employee.__dict__
+            order.product = product.__dict__
+
             orders.append(order.__dict__)
 
     return orders
@@ -44,19 +64,38 @@ def get_single_order(id):
         db_cursor.execute("""
             SELECT
             a.id,
-            a.employee_Id,
-            a.product_Id,
-            a.timestamp
+            a.employee_id,
+            a.product_id,
+            a.timestamp,
+            e.name employee_name,
+            e.hourly_rate,
+            e.email,
+            p.name product_name,
+            p.price
         FROM "order" a
-        WHERE a.id = ?
-        """, (id, ))
+        JOIN Employee e
+            ON e.id = a.employee_id
+        JOIN Product p
+            ON p.id = a.product_id
+        """)
+
+        orders = []
 
         data = db_cursor.fetchone()
 
-        requested_order = Order(data['id'], data['employee_Id'],
-                                data['product_Id'], data['timestamp'])
+        requested_order = Order(data['id'], data['employee_id'],
+                                data['product_id'], data['timestamp'])
+        employee = Employee(data['employee_id'], data['employee_name'],
+                            data['hourly_rate'], data['email'])
+        product = Product(data['product_id'],
+                          data['product_name'], data['price'])
 
-        return requested_order.__dict__
+        requested_order.employee = employee.__dict__
+        requested_order.product = product.__dict__
+
+        orders.append(requested_order.__dict__)
+
+        return orders
 
 
 def create_order(new_order):
@@ -104,7 +143,7 @@ def delete_order(id):
     """Deletes orders from SQL database"""
     with sqlite3.connect("./brewed.sqlite3") as conn:
         db_cursor = conn.cursor()
-        
+
         db_cursor.execute("""
         DELETE FROM 'Order'
         WHERE id = ?

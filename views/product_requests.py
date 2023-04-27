@@ -8,6 +8,33 @@ PRODUCTS = [
 ]
 
 
+def get_products_by_name(name):
+
+    with sqlite3.connect("./brewed.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        select
+            p.id,
+            p.name,
+            p.price
+        from Product p
+        WHERE p.name = ?
+        """, (name, ))
+
+        products = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            product = Product(row['id'], row['name'], row['price'])
+
+            products.append(product.__dict__)
+
+    return products
+
+
 def get_all_products():
     """
     Function that returns a list of products.
@@ -112,6 +139,7 @@ def update_product(id, new_product):
 
     # # Returns the dictionary with `id` property added
     # return product
+
 
 def delete_product(id):
     """This is a function for deleting an product"""
